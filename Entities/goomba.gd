@@ -1,22 +1,25 @@
 extends KinematicBody
 
-var velocity = Vector3()
+
 export var gravity = 0.98
 onready var Player = $"/root/World/Player"
 
 func _physics_process(delta):
-	var toPlayer = Player.transform.origin - transform.origin
+	var velocity = Vector3()
 	
-	var toPlayerLength = Vector2(toPlayer.x, toPlayer.z).length()
+	#print("Player global_transform:", Player.global_transform)
+	
+	var toPlayer = Player.global_transform.origin - global_transform.origin#Player.transform.origin - transform.origin
+	
+	#var toPlayerLength = Vector2(toPlayer.x, toPlayer.z).length()
 	
 	
-	if Input.is_action_just_pressed("debug"):
-		print(toPlayerLength)
-
-	var move = toPlayer if toPlayerLength > 2 else Vector3(0,0,0)
 	
-	move = move.normalized() * 3
+	var move = toPlayer.normalized() * 4 if toPlayer.length() > 5 else Vector3(0,0,0)
+	
+	if Input.is_action_pressed("debug"):
+		print(move)
 		
 	velocity.y -= gravity
-	velocity = move_and_slide(velocity, Vector3.UP)
+	velocity = move_and_slide(velocity + move, Vector3.UP)
 
