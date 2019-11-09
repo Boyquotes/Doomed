@@ -29,6 +29,8 @@ func _process(delta):
 		else:
 			get_viewport().warp_mouse(get_viewport().get_size()*.5)
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		
+		
 	
 	var lookhor = Input.get_action_strength("look_right") - Input.get_action_strength("look_left")
 	var lookver = Input.get_action_strength("look_down") - Input.get_action_strength("look_up")
