@@ -1,6 +1,7 @@
 extends KinematicBody
 var path = []
 var path_ind = 0
+var path_hit_point = false
 const move_speed = 5
 onready var nav = get_parent()
 onready var Player = $"/root/World/Player"
@@ -28,6 +29,14 @@ func _ready():
 	add_to_group("units")
 
 func _process(delta):
+	if Input.is_action_just_pressed("debug"):
+		print(state, " ", physics_state)
+		
+		if raycast_player():
+			print("yes yes")
+		else:
+			print("no no no")
+	
 	if state != "" and has_method(state):
 		call(state, delta)
 
@@ -40,11 +49,15 @@ func state_detect(delta):
 	var space_state = get_world().get_direct_space_state()
 	var hit = space_state.intersect_ray(global_transform.origin, Player.global_transform.origin)
 	if hit and hit.collider == Player: 
+			print("Spoted player, moving to...")
 			move_to(Player.global_transform.origin)
 			set_state("state_chase")
 
 func state_chase(delta):
-	pass
+	if path_hit_point == true:
+		print("path_hit_point ", path_hit_point)
+		move_to(Player.global_transform.origin)
+		path_hit_point = false
 
 func physics_state_process(delta):
 	path_process()
@@ -59,5 +72,13 @@ func path_process():
 		var move_vec = (path[path_ind] - global_transform.origin)
 		if move_vec.length() < 0.1:
 			path_ind += 1
+			if path_ind > 2:
+				path_hit_point = true
 		else:
 			move_and_slide(move_vec.normalized() * move_speed, Vector3(0, 1, 0))
+
+func raycast_player():
+	var space_state = get_world().get_direct_space_state()
+	var hit = space_state.intersect_ray(global_transform.origin, Player.global_transform.origin)
+	if hit and hit.collider == Player: 
+			return true
