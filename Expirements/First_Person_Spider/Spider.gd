@@ -40,11 +40,12 @@ func _physics_process(delta):
 	var moveZ = (Input.get_action_strength("move_backward") - Input.get_action_strength("move_forward"))
 	var moveX = (Input.get_action_strength("move_right") - Input.get_action_strength("move_left"))
 	
+	direction += head_basis.z * moveZ
+	direction += head_basis.x * moveX
+	velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
+	
 	if mode == "floor":
-		direction += head_basis.z * moveZ
-		direction += head_basis.x * moveX
-		
-		velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
+		set_rotation_degrees(Vector3(0,0,0))
 		velocity.y -= gravity
 	
 		if Input.is_action_just_pressed("jump") and is_on_floor():
@@ -52,32 +53,22 @@ func _physics_process(delta):
 	
 		velocity = move_and_slide(velocity, Vector3.UP)
 		
-		if Input.is_action_just_pressed("debug"):
-			mode = "ceiling"
-			set_rotation_degrees(Vector3(0,0,180))
+		if Input.is_action_just_pressed("debug"): mode = "ceiling"
+			
 	
 	elif mode == "ceiling":
-		direction += head_basis.z * moveZ
-		direction += head_basis.x * moveX
-		
-		velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
+		set_rotation_degrees(Vector3(0,0,180))
 		velocity.y += gravity
-	
 		if Input.is_action_just_pressed("jump") and is_on_floor():
 			velocity.y -= jump_power
 	
 		velocity = move_and_slide(velocity, Vector3.DOWN)
 		
-		if Input.is_action_just_pressed("debug"):
-			mode = "floor"
-			set_rotation_degrees(Vector3(0,0,0))
+		if Input.is_action_just_pressed("debug"): mode = "north"
+			
 		
 	elif mode == "north":
-		# rotate x -90
-		direction += head_basis.z * moveZ
-		direction += head_basis.x * moveX
-		
-		velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
+		set_rotation_degrees(Vector3(-90,0,0))
 		velocity.z += gravity
 		
 		if Input.is_action_just_pressed("jump") and is_on_ceiling(): 
@@ -86,12 +77,10 @@ func _physics_process(delta):
 		
 		velocity = move_and_slide(velocity, Vector3.BACK)
 		
-	elif mode == "south":
-		# rotate x -270
-		direction += head_basis.z * moveZ
-		direction += head_basis.x * moveX
+		if Input.is_action_just_pressed("debug"): mode = "south"
 		
-		velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
+	elif mode == "south":
+		set_rotation_degrees(Vector3(-270,0,0))
 		velocity.z -= gravity
 		
 		if Input.is_action_just_pressed("jump") and is_on_floor(): 
@@ -99,13 +88,11 @@ func _physics_process(delta):
 			velocity.z += jump_power
 		
 		velocity = move_and_slide(velocity, Vector3.BACK)
+		
+		if Input.is_action_just_pressed("debug"): mode = "west"
 	
 	elif mode == "west":
-		# rotate z -270
-		direction += head_basis.z * moveZ
-		direction += head_basis.x * moveX
-		
-		velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
+		set_rotation_degrees(Vector3(0,0,-270))
 		velocity.x += gravity
 		
 		if Input.is_action_just_pressed("jump") and is_on_floor(): 
@@ -113,13 +100,11 @@ func _physics_process(delta):
 			velocity.x -= jump_power
 		
 		velocity = move_and_slide(velocity, Vector3.LEFT)
+		
+		if Input.is_action_just_pressed("debug"): mode = "east"
 	
 	elif mode == "east":
-		# rotate z -90
-		direction += head_basis.z * moveZ
-		direction += head_basis.x * moveX
-		
-		velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
+		set_rotation_degrees(Vector3(0,0,-90))
 		velocity.x -= gravity
 		
 		if Input.is_action_just_pressed("jump") and is_on_floor(): 
@@ -127,6 +112,8 @@ func _physics_process(delta):
 			velocity.x += jump_power
 		
 		velocity = move_and_slide(velocity, Vector3.RIGHT)
+		
+		if Input.is_action_just_pressed("debug"): mode = "floor"
 
 func look(look):
 	head.rotate_y(deg2rad(-look.x))
